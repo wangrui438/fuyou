@@ -17,11 +17,12 @@ module Fuyou
 
         response = http_post('/FuyouRest/sign/signIn', options, skip_sign: true)
         Fuyou.config.token = response['data']['key']
+        Fuyou.config.expired_at = DateTime.now + 11.5.hour
       end
 
       # CA 签退
       def sign_out
-        http_post('/FuyouRest/sign/signOut', customId: Fuyou.config.custom_id, skip_sign: true)
+        http_post('/FuyouRest/sign/signOut', customNo: Fuyou.config.custom_id)
       end
 
       private
@@ -29,9 +30,7 @@ module Fuyou
       # 读取pfx证书的内容
       # 内容使用base64编码
       def read_pfx_string
-        raw = File.read(Fuyou.config.certificate_path)
-        pkcs = OpenSSL::PKCS12.new raw, Fuyou.config.ca_password
-        Base64.encode64(pkcs.certificate.to_pem)
+        Base64.strict_encode64(IO.read(Fuyou.config.certificate_path))
       end
 
       # DES 加密
@@ -41,6 +40,7 @@ module Fuyou
         des.key = des_key
         result = des.update(des_text)
         result << des.final
+        Base64.strict_encode64(result).encode('UTF-8')
       end
     end
   end

@@ -5,7 +5,7 @@ module Fuyou
       options = {
         caCode: Fuyou.config.token,
         customId: Fuyou.config.custom_id,
-        timeStamp: DateTime.now.to_i,
+        timeStamp: DateTime.now.utc.to_i,
         nonStr: SecureRandom.hex(10)
       }
       data = params.merge!(options).sort.map { |k, v| "#{k.to_s}=#{v}" }.join('&')
@@ -25,6 +25,11 @@ module Fuyou
       param = sign(params)
       response = connection.get(action, param)
       format_response response
+    end
+
+    # 刷新token
+    def refresh_token
+      return if DateTime.now < Fuyou.config.expired_at
     end
 
     def connection
