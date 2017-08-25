@@ -8,8 +8,12 @@ module Fuyou
         timeStamp: DateTime.now.utc.to_i,
         nonStr: SecureRandom.hex(10)
       }
-      data = params.merge!(options).sort.map { |k, v| "#{k.to_s}=#{v}" }.join('&')
+      param = params.merge!(options)
+      p "原始参数：#{param}"
+      data = param.sort.map { |k, v| "#{k.to_s}=#{v}" }.join('&')
+      p "排序后参数：#{data}"
       sign = Digest::SHA1.hexdigest(data).upcase
+      p "sha1加密后值：#{sign}"
       params.merge(sign: sign)
     end
 
