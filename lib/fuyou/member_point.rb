@@ -9,7 +9,7 @@ module Fuyou
           customNo: Fuyou.config.custom_id,
           corpAccounts: org_id
         }
-        http_get('/FuyouRest/mjfuguan/fuguanQueryRateInfo', options)
+        http_post('/FuyouRest/mjfuguan/fuguanQueryRateInfo', options)
       end
 
       # 福管企业优分购买下单

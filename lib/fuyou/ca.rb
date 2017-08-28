@@ -23,7 +23,6 @@ module Fuyou
       # CA 签退
       def sign_out
         http_post('/FuyouRest/sign/signOut', customNo: Fuyou.config.custom_id)
-        # sign(customNo: Fuyou.config.custom_id)
       end
 
       private

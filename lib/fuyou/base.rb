@@ -2,18 +2,17 @@ module Fuyou
   module Base
     # 签名
     def sign(params)
+      refresh_token
       options = {
         caCode: Fuyou.config.token,
         customId: Fuyou.config.custom_id,
-        timeStamp: Fuyou.config.time_stamp || DateTime.now.utc.to_i,
-        nonStr: Fuyou.config.non_str || SecureRandom.hex(10)
+        timeStamp: DateTime.now.utc.to_i,
+        nonStr: SecureRandom.hex(10)
       }
       param = params.merge!(options)
-      p "原始参数：#{param}"
-      data = param.sort.map { |k, v| "#{k.to_s}=#{v}" }.join('&')
-      p "排序后参数：#{data}&"
-      sign = Digest::SHA1.hexdigest("#{data}&").upcase
-      p "sha1加密后值：#{sign}"
+      data = param.select { |_k, v| v.present? }.sort.map { |k, v| "#{k}=#{v}&" }.join
+      sign = Digest::SHA1.hexdigest(data).upcase
+
       params.merge(sign: sign)
     end
 
@@ -33,7 +32,7 @@ module Fuyou
 
     # 刷新token
     def refresh_token
-      return if DateTime.now < Fuyou.config.expired_at
+      Fuyou::Ca.sign_in if Fuyou.config.expired_at.nil? || DateTime.now > Fuyou.config.expired_at
     end
 
     def connection
@@ -46,7 +45,7 @@ module Fuyou
 
     # 处理接口响应
     def format_response(response)
-      raise UnknownError, "福尤网无法正常访问" if response.status != 200
+      raise UnknownError, "福优网无法正常访问" if response.status != 200
       result = ActiveSupport::JSON.decode(response.body)
       raise InvalidResponseError, result['desc'] if result.is_a?(Hash) && result.key?('rcode') && result['rcode'] != '0000'
       result
