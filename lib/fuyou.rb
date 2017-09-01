@@ -3,6 +3,7 @@ require "fuyou/configuration"
 require "fuyou/base"
 require "fuyou/ca"
 require "fuyou/member_point"
+require "fuyou/order"
 require "logger"
 
 module Fuyou
